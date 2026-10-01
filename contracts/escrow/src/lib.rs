@@ -131,6 +131,14 @@ impl EscrowContract {
             .unwrap_or(false)
     }
 
+    /// Return the configured oracle address.
+    pub fn get_oracle(env: Env) -> Result<Address, Error> {
+        env.storage()
+            .instance()
+            .get(&DataKey::Oracle)
+            .ok_or(Error::Unauthorized)
+    }
+
     fn get_match_count(env: &Env) -> u64 {
         env.storage()
             .instance()

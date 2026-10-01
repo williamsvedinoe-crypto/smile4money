@@ -7,6 +7,7 @@ use soroban_sdk::{
         storage::Persistent as _,
         Address as _,
         Events,
+        Ledger as _,
     },
     token::{Client as TokenClient, StellarAssetClient},
     vec, Address, Env, IntoVal, String, Symbol, TryFromVal,
@@ -799,6 +800,54 @@ fn test_create_match_empty_game_id_fails() {
             &100,
             &token,
             &String::from_str(&env, ""),
+            &Platform::Lichess,
+        ),
+        Err(Ok(Error::InvalidGameId))
+    );
+}
+
+#[test]
+fn test_create_match_game_id_length_boundary() {
+    let (env, contract_id, _oracle, player1, player2, token, _admin, _safe_address) = setup();
+    let client = EscrowContractClient::new(&env, &contract_id);
+
+    let short_ok = String::from_str(&env, &"x".repeat(63));
+    let exact_ok = String::from_str(&env, &"x".repeat(64));
+    let too_long = String::from_str(&env, &"x".repeat(65));
+
+    assert!(client
+        .try_create_match(
+            &player1,
+            &player2,
+            &100,
+            &token,
+            &short_ok,
+            &Platform::Lichess,
+        )
+        .is_ok());
+
+    let player3 = Address::generate(&env);
+    let player4 = Address::generate(&env);
+    assert!(client
+        .try_create_match(
+            &player3,
+            &player4,
+            &100,
+            &token,
+            &exact_ok,
+            &Platform::Lichess,
+        )
+        .is_ok());
+
+    let player5 = Address::generate(&env);
+    let player6 = Address::generate(&env);
+    assert_eq!(
+        client.try_create_match(
+            &player5,
+            &player6,
+            &100,
+            &token,
+            &too_long,
             &Platform::Lichess,
         ),
         Err(Ok(Error::InvalidGameId))
