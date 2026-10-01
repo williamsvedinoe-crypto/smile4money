@@ -16,7 +16,7 @@ extern crate std;
 
 use super::*;
 use soroban_sdk::{
-    testutils::{Address as _, Events},
+    testutils::{Address as _, Events, Ledger as _},
     token::{Client as TokenClient, StellarAssetClient},
     vec, Address, Env, IntoVal, String, Symbol, TryFromVal,
 };
